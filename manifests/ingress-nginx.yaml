@@ -6,5 +6,7 @@ controller:
   electionID: ingress
   ingressClass: nginx
   healthCheckPath: "/healthz"
+  service:
+    enabled: false
 defaultBackend:
   enabled: false
