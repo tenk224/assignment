@@ -10,5 +10,5 @@ jobs:
       - name: echo
         run: |
           export PATH="$PATH:/usr/local/go/bin:/home/ubuntu/go/bin"
-          go
-          kind
+          go version
+          kind version
