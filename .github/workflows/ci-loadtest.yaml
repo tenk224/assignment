@@ -9,7 +9,6 @@ jobs:
     steps:
       - name: echo
         run: |
-          echo "/usr/local/go/bin:/home/ubuntu/go/bin" >> $GITHUB_PATH
-          echo $GITHUB_PATH
+          export PATH="$PATH:/usr/local/go/bin:/home/ubuntu/go/bin"
           go
           kind
