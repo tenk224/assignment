@@ -1,0 +1,19 @@
+env:
+  KUBECONFIG: /root/.kube/config
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@main
+      - name: echo
+        run: |
+          go version
+          kind version
+          kubectl version
+          ls -lah $GITHUB_WORKSPACE
