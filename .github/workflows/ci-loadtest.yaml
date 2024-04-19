@@ -7,13 +7,14 @@ on:
       - 'feature/**'
 
 jobs:
-  test:
+  ci-loadtest:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@main
-      - name: echo
-        run: |
-          go version
-          kind version
-          kubectl version
-          ls -lah $GITHUB_WORKSPACE
+      - name: create cluster
+        run: kind create cluster --config kind/cluster.yaml --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
+      - name: validate cluster
+        run: kubectl version
+      - name: clean up
+        if: always()
+        run: kind delete cluster --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
