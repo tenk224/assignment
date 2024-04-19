@@ -1,3 +1,6 @@
+env:
+  KUBECONFIG: /root/.kube/config
+
 on:
   push:
     branches:
