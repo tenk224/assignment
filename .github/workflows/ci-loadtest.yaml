@@ -9,6 +9,7 @@ jobs:
     steps:
       - name: echo
         run: |
-          export PATH="$PATH:/usr/local/go/bin:/home/ubuntu/go/bin"
+          export PATH="$PATH:/usr/local/go/bin:/root/go/bin"
           go version
           kind version
+          kubectl version

@@ -8,3 +8,4 @@
     - Docker
     - go
     - `go install sigs.k8s.io/kind@v0.22.0`
+  - Kubectl
