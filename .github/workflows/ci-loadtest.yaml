@@ -41,6 +41,6 @@ jobs:
           else
             exit 1
           fi
-      - name: clean up
-        if: always()
-        run: kind delete cluster --name $GITHUB_JOB
+      # - name: clean up
+      #   if: always()
+      #   run: kind delete cluster --name $GITHUB_JOB
