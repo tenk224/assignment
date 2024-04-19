@@ -17,18 +17,32 @@ jobs:
       - name: validate cluster
         run: kubectl version
       - name: install ingress-nginx
-        run: helm install ingress-nginx charts/ingress-nginx -f manifests/ingress-nginx.yaml
+        run: |
+          set -xe
+          helm install ingress-nginx charts/ingress-nginx -f manifests/ingress-nginx.yaml
       - name: validate ingress-nginx
         run: |
+          set -xe
           counter=100
+          validate_state=false
           while [[ $counter -gt 0 ]]
           do
-            kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.numberReady}'
-            kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.desiredNumberScheduled}'
-            echo ""
+            ready=$(kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.numberReady}')
+            desire=$(kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.desiredNumberScheduled}')
+            if [[ $ready -eq $desire ]]
+            then
+              validate_state=true
+              break
+            fi
             ((counter-=1))
             sleep 1
           done
+          if $validate_state
+          then
+            exit 0
+          else
+            exit 1
+          fi
       - name: clean up
         if: always()
         run: kind delete cluster --name $GITHUB_JOB
