@@ -13,7 +13,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@main
       - name: create cluster
-        run: kind create cluster --config kind/cluster.yaml --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
+        run: kind create cluster --config kind/cluster.yaml --name $GITHUB_JOB
       - name: validate cluster
         run: kubectl version
       - name: install ingress-nginx
@@ -21,14 +21,14 @@ jobs:
       - name: validate ingress-nginx
         run: |
           counter=100
-          while [[ $counter >= 0 ]]
+          while [[ $counter -gt 0 ]]
           do
             kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.numberReady}'
             kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.desiredNumberScheduled}'
-            echo "\n"
+            echo ""
             ((counter-=1))
             sleep 1
           done
       - name: clean up
         if: always()
-        run: kind delete cluster --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
+        run: kind delete cluster --name $GITHUB_JOB
