@@ -1,0 +1,11 @@
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - name: echo
+        run: echo "test"
