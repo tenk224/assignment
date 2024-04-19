@@ -9,6 +9,6 @@ jobs:
     steps:
       - name: echo
         run: |
-          docker
+          echo $PATH
           go
           kind
