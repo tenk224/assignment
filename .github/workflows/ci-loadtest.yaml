@@ -10,7 +10,7 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@$GITHUB_REF_NAME
+      - uses: actions/checkout@$env:GITHUB_REF_NAME
       - name: echo
         run: |
           go version
