@@ -41,6 +41,10 @@ jobs:
           else
             exit 1
           fi
+      - name: install foo
+        run: helm install foo charts/loadtest --set fullnameOverride=foo
+      - name: install bar
+        run: helm install bar charts/loadtest --set fullnameOverride=bar
       # - name: clean up
       #   if: always()
       #   run: kind delete cluster --name $GITHUB_JOB
