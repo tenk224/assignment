@@ -16,4 +16,4 @@ jobs:
           go version
           kind version
           kubectl version
-          ls -lah $GITHUB_WORKSPACE
+          helm version
