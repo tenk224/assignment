@@ -1,0 +1,10 @@
+fullnameOverride: "ingress-nginx"
+controller:
+  kind: DaemonSet
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  electionID: ingress
+  ingressClass: nginx
+  healthCheckPath: "/healthz"
+defaultBackend:
+  enabled: false

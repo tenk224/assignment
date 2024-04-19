@@ -16,6 +16,8 @@ jobs:
         run: kind create cluster --config kind/cluster.yaml --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
       - name: validate cluster
         run: kubectl version
-      - name: clean up
-        if: always()
-        run: kind delete cluster --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
+      - name: install ingress-nginx
+        run: helm install ingress-nginx charts/ingress-nginx -f manifests/ingress-nginx.yaml
+      # - name: clean up
+      #   if: always()
+      #   run: kind delete cluster --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
