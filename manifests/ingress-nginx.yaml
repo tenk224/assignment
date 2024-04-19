@@ -7,6 +7,9 @@ controller:
   ingressClass: nginx
   healthCheckPath: "/healthz"
   service:
-    enabled: false
+    type: NodePort
+    nodePorts:
+      http: 32080
+      https: 32443
 defaultBackend:
   enabled: false
