@@ -17,12 +17,10 @@ jobs:
       - name: validate cluster
         run: kubectl version
       - name: install ingress-nginx
-        run: |
-          set -xe
-          helm install ingress-nginx charts/ingress-nginx -f manifests/ingress-nginx.yaml
+        run: helm install ingress-nginx charts/ingress-nginx -f manifests/ingress-nginx.yaml
       - name: validate ingress-nginx
         run: |
-          set -xe
+          set -e
           counter=100
           validate_state=false
           while [[ $counter -gt 0 ]]
@@ -35,7 +33,7 @@ jobs:
               break
             fi
             ((counter-=1))
-            sleep 1
+            sleep 5
           done
           if $validate_state
           then
