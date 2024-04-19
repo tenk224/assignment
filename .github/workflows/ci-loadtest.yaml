@@ -45,6 +45,21 @@ jobs:
         run: helm install foo charts/loadtest --set fullnameOverride=foo
       - name: install bar
         run: helm install bar charts/loadtest --set fullnameOverride=bar
+      # - name: add host for foo
+      #   run: echo "127.0.0.1 foo.localhost" >> /etc/hosts
+      # - name: add host for bar
+      #   run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
+      - name: validate foo
+        run: |
+          helm test foo
+          curl foo.localhost
+      - name: validate bar
+        run: |
+          helm test bar
+          curl bar.localhost
       # - name: clean up
       #   if: always()
-      #   run: kind delete cluster --name $GITHUB_JOB
+      #   run: |
+      #     kind delete cluster --name $GITHUB_JOB
+      #     sed -i '/.*foo.localhost$/d' /etc/hosts
+      #     sed -i '/.*bar.localhost$/d' /etc/hosts
