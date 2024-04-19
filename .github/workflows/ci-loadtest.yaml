@@ -21,14 +21,14 @@ jobs:
       - name: validate ingress-nginx
         run: |
           counter=100
-          while [ $COUNTER -ge 0 ]
+          while [[ $counter >= 0 ]]
           do
             kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.numberReady}'
             kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.desiredNumberScheduled}'
             echo "\n"
-            counter=$(( counter - 1 ))
+            ((counter-=1))
             sleep 1
           done
-      # - name: clean up
-      #   if: always()
-      #   run: kind delete cluster --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
+      - name: clean up
+        if: always()
+        run: kind delete cluster --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
