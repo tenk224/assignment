@@ -15,3 +15,4 @@ jobs:
           go version
           kind version
           kubectl version
+          ls -lah ./
