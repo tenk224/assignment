@@ -11,6 +11,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: echo
+        uses: actions/checkout@$GITHUB_REF_NAME
         run: |
           go version
           kind version
