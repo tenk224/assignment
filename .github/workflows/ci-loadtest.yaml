@@ -10,7 +10,8 @@ jobs:
   ci-loadtest:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@main
+      - name: checkout
+        uses: actions/checkout@main
       - name: create cluster
         run: kind create cluster --config kind/cluster.yaml --name $GITHUB_JOB-$GITHUB_RUN_NUMBER
       - name: validate cluster
