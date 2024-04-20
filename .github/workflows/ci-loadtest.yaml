@@ -12,6 +12,4 @@ jobs:
     steps:
       - name: echo
         run: |
-          go version
-          kind version
-          helm version
+          helm repo ls
