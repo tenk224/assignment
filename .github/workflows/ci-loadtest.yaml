@@ -23,35 +23,18 @@ jobs:
           helm install ingress-nginx ingress-nginx/ingress-nginx -f manifests/ingress-nginx.yaml --version 4.10.0
       - name: validate ingress-nginx
         run: |
-          set -e
-          counter=100
-          validate_state=false
-          while [[ $counter -gt 0 ]]
-          do
-            ready=$(kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.numberReady}')
-            desire=$(kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.desiredNumberScheduled}')
-            if [[ $ready -eq $desire ]]
-            then
-              validate_state=true
-              break
-            fi
-            ((counter-=1))
-            sleep 5
-          done
-          if $validate_state
-          then
-            exit 0
-          else
-            exit 1
-          fi
+          kubectl wait \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=100s
       - name: install foo
         run: helm install foo charts/loadtest --set fullnameOverride=foo
       - name: install bar
         run: helm install bar charts/loadtest --set fullnameOverride=bar
-      - name: add host for foo
-        run: echo "127.0.0.1 foo.localhost" >> /etc/hosts
-      - name: add host for bar
-        run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
+      # - name: add host for foo
+      #   run: echo "127.0.0.1 foo.localhost" >> /etc/hosts
+      # - name: add host for bar
+      #   run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
       - name: validate foo
         run: |
           helm test foo
@@ -100,9 +83,9 @@ jobs:
               repo: context.repo.repo,
               body: process.env.COMMENT_BODY
             })
-      - name: clean up
-        if: always()
-        run: |
-          kind delete cluster --name $GITHUB_JOB
-          sed -i '/.*foo.localhost$/d' /etc/hosts
-          sed -i '/.*bar.localhost$/d' /etc/hosts
+      # - name: clean up
+      #   if: always()
+      #   run: |
+      #     kind delete cluster --name $GITHUB_JOB
+      #     sed -i '/.*foo.localhost$/d' /etc/hosts
+      #     sed -i '/.*bar.localhost$/d' /etc/hosts
