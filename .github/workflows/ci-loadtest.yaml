@@ -80,6 +80,7 @@ jobs:
         with:
           run: |
             echo "test abc"
+            echo "line1"
       - name: comment foo result
         uses: actions/github-script@main
         env:
@@ -91,7 +92,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'test'
+              body: process.env.COMMENT_BODY
             })
       # - name: loadtest bar
       #   id: bar
