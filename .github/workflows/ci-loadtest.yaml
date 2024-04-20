@@ -82,10 +82,11 @@ jobs:
             echo "test abc"
       - name: comment foo result
         uses: actions/github-script@main
+        env:
+          COMMENT_BODY: ${{ steps.test.outputs.stdout }}
         with:
           script: |
-            const comment_body = "${{ steps.test.outputs.stdout }}"
-            console.log(comment_body)
+            console.log(process.env.COMMENT_BODY)
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
