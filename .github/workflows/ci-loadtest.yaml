@@ -17,7 +17,7 @@ jobs:
       - name: validate cluster
         run: kubectl version
       - name: install ingress-nginx
-        run: helm install ingress-nginx charts/ingress-nginx -f manifests/ingress-nginx.yaml
+        run: helm install ingress-nginx ingress-nginx/ingress-nginx -f manifests/ingress-nginx.yaml --version 4.10.0
       - name: validate ingress-nginx
         run: |
           set -e
