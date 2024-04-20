@@ -10,90 +10,90 @@ jobs:
   ci-loadtest:
     runs-on: self-hosted
     steps:
-      # - name: checkout
-      #   uses: actions/checkout@main
-      # - name: create cluster
-      #   run: kind create cluster --config kind/cluster.yaml --name $GITHUB_JOB
-      # - name: validate cluster
-      #   run: kubectl version
-      # - name: install ingress-nginx
-      #   run: helm install ingress-nginx charts/ingress-nginx -f manifests/ingress-nginx.yaml
-      # - name: validate ingress-nginx
-      #   run: |
-      #     set -e
-      #     counter=100
-      #     validate_state=false
-      #     while [[ $counter -gt 0 ]]
-      #     do
-      #       ready=$(kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.numberReady}')
-      #       desire=$(kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.desiredNumberScheduled}')
-      #       if [[ $ready -eq $desire ]]
-      #       then
-      #         validate_state=true
-      #         break
-      #       fi
-      #       ((counter-=1))
-      #       sleep 5
-      #     done
-      #     if $validate_state
-      #     then
-      #       exit 0
-      #     else
-      #       exit 1
-      #     fi
-      # - name: install foo
-      #   run: helm install foo charts/loadtest --set fullnameOverride=foo
-      # - name: install bar
-      #   run: helm install bar charts/loadtest --set fullnameOverride=bar
-      # - name: add host for foo
-      #   run: echo "127.0.0.1 foo.localhost" >> /etc/hosts
-      # - name: add host for bar
-      #   run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
-      # - name: validate foo
-      #   run: |
-      #     helm test foo
-      #     curl -i foo.localhost
-      # - name: validate bar
-      #   run: |
-      #     helm test bar
-      #     curl -i bar.localhost
-      # - name: loadtest foo
-      #   id: foo
-      #   uses: mathiasvr/command-output@main
-      #   with:
-      #     run: |
-      #       sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
-      #       k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
-      # - name: comment foo result
-      #   uses: actions/github-script@main
-      #   with:
-      #     script: |
-      #       github.rest.issues.createComment({
-      #         issue_number: context.issue.number,
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         body: '${{ steps.foo.outputs.stdout }}'
-      #       })
+      - name: checkout
+        uses: actions/checkout@main
+      - name: create cluster
+        run: kind create cluster --config kind/cluster.yaml --name $GITHUB_JOB
+      - name: validate cluster
+        run: kubectl version
+      - name: install ingress-nginx
+        run: helm install ingress-nginx charts/ingress-nginx -f manifests/ingress-nginx.yaml
+      - name: validate ingress-nginx
+        run: |
+          set -e
+          counter=100
+          validate_state=false
+          while [[ $counter -gt 0 ]]
+          do
+            ready=$(kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.numberReady}')
+            desire=$(kubectl get daemonset ingress-nginx-controller -o=jsonpath='{.status.desiredNumberScheduled}')
+            if [[ $ready -eq $desire ]]
+            then
+              validate_state=true
+              break
+            fi
+            ((counter-=1))
+            sleep 5
+          done
+          if $validate_state
+          then
+            exit 0
+          else
+            exit 1
+          fi
+      - name: install foo
+        run: helm install foo charts/loadtest --set fullnameOverride=foo
+      - name: install bar
+        run: helm install bar charts/loadtest --set fullnameOverride=bar
+      - name: add host for foo
+        run: echo "127.0.0.1 foo.localhost" >> /etc/hosts
+      - name: add host for bar
+        run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
+      - name: validate foo
+        run: |
+          helm test foo
+          curl -i foo.localhost
+      - name: validate bar
+        run: |
+          helm test bar
+          curl -i bar.localhost
+      - name: loadtest foo
+        id: foo
+        uses: mathiasvr/command-output@main
+        with:
+          run: |
+            sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
+            k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
       - name: comment foo result
-        uses: actions/github-script@v6
+        uses: actions/github-script@main
         with:
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'test'
+              body: '${{ steps.foo.outputs.stdout }}'
             })
-      # - name: loadtest bar
-      #   id: bar
-      #   uses: mathiasvr/command-output@main
-      #   with:
-      #     run: |
-      #       sed 's/localhost/bar.localhost/g' loadtest.js > bar_loadtest.js
-      #       k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 bar_loadtest.js
-      # - name: clean up
-      #   if: always()
-      #   run: |
-      #     kind delete cluster --name $GITHUB_JOB
-      #     sed -i '/.*foo.localhost$/d' /etc/hosts
-      #     sed -i '/.*bar.localhost$/d' /etc/hosts
+      - name: loadtest bar
+        id: bar
+        uses: mathiasvr/command-output@main
+        with:
+          run: |
+            sed 's/localhost/bar.localhost/g' loadtest.js > bar_loadtest.js
+            k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 bar_loadtest.js
+      - name: comment foo result
+        uses: actions/github-script@main
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ steps.foo.outputs.stdout }}'
+            })
+      - name: clean up
+        if: always()
+        run: |
+          kind delete cluster --name $GITHUB_JOB
+          sed -i '/.*foo.localhost$/d' /etc/hosts
+          sed -i '/.*bar.localhost$/d' /etc/hosts
