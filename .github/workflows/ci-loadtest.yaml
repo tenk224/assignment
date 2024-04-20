@@ -61,10 +61,10 @@ jobs:
         id: foo
         run: |
           sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
-          echo "result=$(k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js)" >> $GITHUB_OUTPUT
+          k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
       - name: test pass variable
         run: |
-          echo "${{ steps.foo.outputs.result }}"
+          echo "${{ steps.foo.outputs }}"
           
       - name: loadtest bar
         run: |
