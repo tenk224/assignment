@@ -52,15 +52,21 @@ jobs:
       - name: validate foo
         run: |
           helm test foo
-          curl -I foo.localhost
+          curl -i foo.localhost
       - name: validate bar
         run: |
           helm test bar
-          curl -I bar.localhost
+          curl -i bar.localhost
       - name: loadtest foo
         run: |
           sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
           k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
+          echo ""
+      - name: loadtest foo
+        run: |
+          sed 's/localhost/bar.localhost/g' loadtest.js > bar_loadtest.js
+          k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 bar_loadtest.js
+          echo ""
       # - name: clean up
       #   if: always()
       #   run: |
