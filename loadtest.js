@@ -11,7 +11,7 @@ export function handleSummary(data) {
   let rps = data.metrics.http_reqs.values['rate'];
   let reqFailed = data.metrics.http_req_failed.values['passes'];
   
-  const message = "Load Test Result:" + 
+  const message = "" + 
 		"\nAvg Reponse Time: " + avgResponseTime.toFixed(2) + "ms" +
 		"\np95 Response Time: " + p95ResponseTime.toFixed(2) + "ms" +
 		"\np90 Response Time: " + p90ReponnseTime.toFixed(2) + "ms" +
