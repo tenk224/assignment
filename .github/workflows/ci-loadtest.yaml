@@ -47,10 +47,14 @@ jobs:
         run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
       - name: validate foo
         run: |
-          curl -i foo.localhost
+          set -xe
+          HOST=foo.localhost
+          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' $HOST)" != "200" ]]; do sleep 5; done' || false
       - name: validate bars
         run: |
-          curl -i bar.localhost
+          set -xe
+          HOST=bar.localhost
+          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' $HOST)" != "200" ]]; do sleep 5; done' || false
       - name: loadtest foo
         id: foo
         uses: mathiasvr/command-output@main
