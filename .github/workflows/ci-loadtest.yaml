@@ -2,7 +2,7 @@ env:
   KUBECONFIG: /root/.kube/config
 
 on:
-  push:
+  pull_request:
     branches:
       - 'feature/**'
 
