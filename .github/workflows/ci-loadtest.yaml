@@ -59,12 +59,14 @@ jobs:
           curl -i bar.localhost
       - name: loadtest foo
         id: foo
-        run: |
-          sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
-          k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
+        uses: mathiasvr/command-output@v1
+        with:
+          run: |
+            sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
+            k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
       - name: test pass variable
         run: |
-          echo "${{ steps.foo.outputs }}"
+          echo "${{ steps.foo.outputs.stdout }}"
           
       - name: loadtest bar
         run: |
