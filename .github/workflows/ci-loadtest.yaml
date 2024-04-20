@@ -84,7 +84,7 @@ jobs:
         uses: actions/github-script@main
         with:
           script: |
-            const comment_body = ${{ steps.test.outputs.stdout }}
+            const comment_body = '${{ steps.test.outputs.stdout }}'
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
