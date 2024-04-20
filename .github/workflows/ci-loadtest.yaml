@@ -28,20 +28,28 @@ jobs:
             --selector=app.kubernetes.io/component=controller \
             --timeout=100s
       - name: install foo
-        run: helm install foo charts/loadtest --set fullnameOverride=foo
+        run: |
+          helm install foo charts/loadtest --set fullnameOverride=foo
+          kubectl wait \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/instance=foo \
+            --timeout=100s
       - name: install bar
-        run: helm install bar charts/loadtest --set fullnameOverride=bar
-      # - name: add host for foo
-      #   run: echo "127.0.0.1 foo.localhost" >> /etc/hosts
-      # - name: add host for bar
-      #   run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
+        run: |
+          helm install bar charts/loadtest --set fullnameOverride=bar
+          kubectl wait \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/instance=bar \
+            --timeout=100s
+      - name: add host for foo
+        run: echo "127.0.0.1 foo.localhost" >> /etc/hosts
+      - name: add host for bar
+        run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
       - name: validate foo
         run: |
-          helm test foo
           curl -i foo.localhost
-      - name: validate bar
+      - name: validate bars
         run: |
-          helm test bar
           curl -i bar.localhost
       - name: loadtest foo
         id: foo
@@ -83,9 +91,9 @@ jobs:
               repo: context.repo.repo,
               body: process.env.COMMENT_BODY
             })
-      # - name: clean up
-      #   if: always()
-      #   run: |
-      #     kind delete cluster --name $GITHUB_JOB
-      #     sed -i '/.*foo.localhost$/d' /etc/hosts
-      #     sed -i '/.*bar.localhost$/d' /etc/hosts
+      - name: clean up
+        if: always()
+        run: |
+          kind delete cluster --name $GITHUB_JOB
+          sed -i '/.*foo.localhost$/d' /etc/hosts
+          sed -i '/.*bar.localhost$/d' /etc/hosts
