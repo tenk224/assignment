@@ -58,11 +58,15 @@ jobs:
           helm test bar
           curl -i bar.localhost
       - name: loadtest foo
+        id: foo
         run: |
           sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
-          k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
-          echo ""
-      - name: loadtest foo
+          echo "result=$(k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js)" >> $GITHUB_OUTPUT
+      - name: test pass variable
+        run: |
+          echo "${{ steps.foo.outputs.result }}"
+          
+      - name: loadtest bar
         run: |
           sed 's/localhost/bar.localhost/g' loadtest.js > bar_loadtest.js
           k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 bar_loadtest.js
