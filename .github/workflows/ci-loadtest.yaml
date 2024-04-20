@@ -4,7 +4,7 @@ env:
 on:
   pull_request:
     branches:
-      - 'feature/**'
+      - main
 
 jobs:
   ci-loadtest:
@@ -63,14 +63,40 @@ jobs:
         with:
           run: |
             sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
+            echo "foo result:"
             k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
+      - name: comment foo result
+        uses: actions/github-script@main
+        env:
+          COMMENT_BODY: ${{ steps.foo.outputs.stdout }}
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: process.env.COMMENT_BODY
+            })
       - name: loadtest bar
         id: bar
         uses: mathiasvr/command-output@main
         with:
           run: |
             sed 's/localhost/bar.localhost/g' loadtest.js > bar_loadtest.js
+            echo "bar result:"
             k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 bar_loadtest.js
+      - name: comment bar result
+        uses: actions/github-script@main
+        env:
+          COMMENT_BODY: ${{ steps.bar.outputs.stdout }}
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: process.env.COMMENT_BODY
+            })
       - name: clean up
         if: always()
         run: |
