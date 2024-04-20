@@ -75,7 +75,7 @@ jobs:
       #         body: '${{ steps.foo.outputs.stdout }}'
       #       })
       - name: comment foo result
-        uses: actions/github-script@main
+        uses: actions/github-script@v6
         with:
           script: |
             github.rest.issues.createComment({
