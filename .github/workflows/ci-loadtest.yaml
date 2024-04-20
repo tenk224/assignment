@@ -48,13 +48,11 @@ jobs:
       - name: validate foo
         run: |
           set -xe
-          HOST=foo.localhost
-          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' $HOST)" != "200" ]]; do sleep 5; done' || false
+          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' foo.localhost)" != "200" ]]; do sleep 5; done' || false
       - name: validate bars
         run: |
           set -xe
-          HOST=bar.localhost
-          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' $HOST)" != "200" ]]; do sleep 5; done' || false
+          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' bar.localhost)" != "200" ]]; do sleep 5; done' || false
       - name: loadtest foo
         id: foo
         uses: mathiasvr/command-output@main
