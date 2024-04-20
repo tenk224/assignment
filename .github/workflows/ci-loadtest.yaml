@@ -59,20 +59,18 @@ jobs:
           curl -i bar.localhost
       - name: loadtest foo
         id: foo
-        uses: mathiasvr/command-output@v1
+        uses: mathiasvr/command-output@v2
         with:
           run: |
             sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
             k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
-      - name: test pass variable
-        run: |
-          echo "${{ steps.foo.outputs.stdout }}"
-          
       - name: loadtest bar
-        run: |
-          sed 's/localhost/bar.localhost/g' loadtest.js > bar_loadtest.js
-          k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 bar_loadtest.js
-          echo ""
+        id: bar
+        uses: mathiasvr/command-output@v2
+        with:
+          run: |
+            sed 's/localhost/bar.localhost/g' loadtest.js > bar_loadtest.js
+            k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 bar_loadtest.js
       - name: clean up
         if: always()
         run: |
