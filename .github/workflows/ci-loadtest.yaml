@@ -1,0 +1,101 @@
+env:
+  KUBECONFIG: /root/.kube/config
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci-loadtest:
+    runs-on: self-hosted
+    steps:
+      - name: checkout
+        uses: actions/checkout@main
+      - name: create cluster
+        run: kind create cluster --config kind/cluster.yaml --name $GITHUB_JOB
+      - name: validate cluster
+        run: kubectl version
+      - name: install ingress-nginx
+        run: |
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm install ingress-nginx ingress-nginx/ingress-nginx -f manifests/ingress-nginx.yaml --version 4.10.0
+      - name: validate ingress-nginx
+        run: |
+          kubectl wait \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=100s
+      - name: install foo
+        run: |
+          helm install foo charts/loadtest --set fullnameOverride=foo
+          kubectl wait \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/instance=foo \
+            --timeout=100s
+      - name: install bar
+        run: |
+          helm install bar charts/loadtest --set fullnameOverride=bar
+          kubectl wait \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/instance=bar \
+            --timeout=100s
+      - name: add host for foo
+        run: echo "127.0.0.1 foo.localhost" >> /etc/hosts
+      - name: add host for bar
+        run: echo "127.0.0.1 bar.localhost" >> /etc/hosts
+      - name: validate foo
+        run: |
+          set -xe
+          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' foo.localhost)" != "200" ]]; do sleep 5; done' || false
+      - name: validate bars
+        run: |
+          set -xe
+          timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' bar.localhost)" != "200" ]]; do sleep 5; done' || false
+      - name: loadtest foo
+        id: foo
+        uses: mathiasvr/command-output@main
+        with:
+          run: |
+            sed 's/localhost/foo.localhost/g' loadtest.js > foo_loadtest.js
+            echo "foo result:"
+            k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 foo_loadtest.js
+      - name: comment foo result
+        uses: actions/github-script@main
+        env:
+          COMMENT_BODY: ${{ steps.foo.outputs.stdout }}
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: process.env.COMMENT_BODY
+            })
+      - name: loadtest bar
+        id: bar
+        uses: mathiasvr/command-output@main
+        with:
+          run: |
+            sed 's/localhost/bar.localhost/g' loadtest.js > bar_loadtest.js
+            echo "bar result:"
+            k6 run -q -u 0 -s 10s:100 -s 60s:100 -s 10s:0 bar_loadtest.js
+      - name: comment bar result
+        uses: actions/github-script@main
+        env:
+          COMMENT_BODY: ${{ steps.bar.outputs.stdout }}
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: process.env.COMMENT_BODY
+            })
+      - name: clean up
+        if: always()
+        run: |
+          kind delete cluster --name $GITHUB_JOB
+          sed -i '/.*foo.localhost$/d' /etc/hosts
+          sed -i '/.*bar.localhost$/d' /etc/hosts
